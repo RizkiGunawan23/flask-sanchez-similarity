@@ -34,15 +34,23 @@
                         <button
                             type="button"
                             onclick="randomizeSkills(1)"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+                            class="ml-2 text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
                             title="Random Skill"
                         >
                             🎲
                         </button>
+                        <button
+                            type="button"
+                            onclick="resetSkills(1)"
+                            class="ml-2 text-red-500 hover:text-red-700 bg-white border border-red-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+                            title="Reset Skill"
+                        >
+                            ⟲
+                        </button>
+                        <!-- Dropdown harus di sini, di dalam .relative -->
                         <div
                             id="dropdown1"
-                            class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
-                            style="left: 0; right: 0"
+                            class="absolute left-0 right-0 top-full z-20 bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
                         ></div>
                     </div>
                     <div
@@ -53,7 +61,7 @@
                 <!-- Skill List 2 -->
                 <div class="mb-6">
                     <label class="block font-semibold mb-2"
-                        >Pilih Skill List 2:</label
+                        >Pilih Skill List 1:</label
                     >
                     <div class="relative flex items-center">
                         <input
@@ -67,15 +75,23 @@
                         <button
                             type="button"
                             onclick="randomizeSkills(2)"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+                            class="ml-2 text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
                             title="Random Skill"
                         >
                             🎲
                         </button>
+                        <button
+                            type="button"
+                            onclick="resetSkills(2)"
+                            class="ml-2 text-red-500 hover:text-red-700 bg-white border border-red-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+                            title="Reset Skill"
+                        >
+                            ⟲
+                        </button>
+                        <!-- Dropdown harus di sini, di dalam .relative -->
                         <div
                             id="dropdown2"
-                            class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
-                            style="left: 0; right: 0"
+                            class="absolute left-0 right-0 top-full z-20 bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
                         ></div>
                     </div>
                     <div
@@ -333,6 +349,20 @@
                 document
                     .getElementById("hierarchyModal")
                     .classList.add("hidden");
+            }
+
+            function resetSkills(listNum) {
+                if (listNum === 1) {
+                    selected1 = [];
+                    renderSelectedSkills(1);
+                    renderSkillOptions(1);
+                } else {
+                    selected2 = [];
+                    renderSelectedSkills(2);
+                    renderSkillOptions(2);
+                }
+                updateCalculateButton();
+                document.getElementById("skillSearch" + listNum).value = "";
             }
 
             function randomizeSkills(listNum) {
