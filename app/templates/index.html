@@ -22,7 +22,7 @@
                     <label class="block font-semibold mb-2"
                         >Pilih Skill List 1:</label
                     >
-                    <div class="relative">
+                    <div class="relative flex items-center">
                         <input
                             id="skillSearch1"
                             type="text"
@@ -31,9 +31,18 @@
                             class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             oninput="filterSkillOptions(1)"
                         />
+                        <button
+                            type="button"
+                            onclick="randomizeSkills(1)"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+                            title="Random Skill"
+                        >
+                            🎲
+                        </button>
                         <div
                             id="dropdown1"
                             class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
+                            style="left: 0; right: 0"
                         ></div>
                     </div>
                     <div
@@ -46,7 +55,7 @@
                     <label class="block font-semibold mb-2"
                         >Pilih Skill List 2:</label
                     >
-                    <div class="relative">
+                    <div class="relative flex items-center">
                         <input
                             id="skillSearch2"
                             type="text"
@@ -55,9 +64,18 @@
                             class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             oninput="filterSkillOptions(2)"
                         />
+                        <button
+                            type="button"
+                            onclick="randomizeSkills(2)"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-blue-600 hover:text-blue-800 bg-white border border-blue-200 rounded-full w-8 h-8 flex items-center justify-center shadow-sm"
+                            title="Random Skill"
+                        >
+                            🎲
+                        </button>
                         <div
                             id="dropdown2"
                             class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
+                            style="left: 0; right: 0"
                         ></div>
                     </div>
                     <div
@@ -315,6 +333,37 @@
                 document
                     .getElementById("hierarchyModal")
                     .classList.add("hidden");
+            }
+
+            function randomizeSkills(listNum) {
+                // Tentukan jumlah skill random yang ingin diambil, misal 3
+                const jumlah = 3;
+                // Filter skill yang belum dipilih
+                const selected = listNum === 1 ? selected1 : selected2;
+                const available = skills.filter((s) => !selected.includes(s));
+                // Ambil random skill
+                const shuffled = available.sort(() => 0.5 - Math.random());
+                const randomSkills = shuffled.slice(
+                    0,
+                    Math.min(jumlah, available.length)
+                );
+                // Set ke list yang sesuai
+                if (listNum === 1) {
+                    selected1 = [...selected1, ...randomSkills].slice(
+                        0,
+                        jumlah
+                    );
+                    renderSelectedSkills(1);
+                    renderSkillOptions(1);
+                } else {
+                    selected2 = [...selected2, ...randomSkills].slice(
+                        0,
+                        jumlah
+                    );
+                    renderSelectedSkills(2);
+                    renderSkillOptions(2);
+                }
+                updateCalculateButton();
             }
         </script>
     </body>
