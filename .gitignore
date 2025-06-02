@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Virtual environments
+.env
+.venv/
+venv/
+env/
+ENV/
+*.env
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+*.whl
+
+# Logs and temp
+*.log
+*.tmp
+
+# Node/npm (if ever used for frontend)
+node_modules/
+
+# Secret/config files (uncomment if you use them)
+# config.json
+# secrets.json
+
+# Ignore static_data if berisi data sensitif (uncomment jika perlu)
+# app/static_data/

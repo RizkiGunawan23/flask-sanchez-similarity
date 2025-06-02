@@ -1,0 +1,16 @@
+runtime: python313
+entrypoint: gunicorn -b :$PORT app.main:app
+# The following environment variables can be set for your application
+# env: flex
+# instance_class: F1
+# max_instances: 5
+# min_instances: 1
+
+# Uncomment and modify the following lines as needed
+# env_variables:
+#   KEY: VALUE
+
+# You can also specify the timeout for requests
+# timeout: 60s
+
+# Add any additional configuration options here as needed

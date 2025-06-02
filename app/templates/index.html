@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sanchez Similarity Calculator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- Tambahkan ini -->
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body
+        class="bg-gray-50 min-h-screen flex flex-col items-center justify-center"
+    >
+        <div
+            class="bg-white shadow-lg rounded-lg p-4 sm:p-8 w-full max-w-md mx-2"
+        >
+            <!-- Ubah padding & tambahkan mx-2 -->
+            <h2 class="text-2xl font-bold mb-6 text-center text-blue-700">
+                Sanchez Similarity Calculator
+            </h2>
+            <form id="similarity-form" class="space-y-6">
+                <!-- Skill List 1 -->
+                <div class="mb-6">
+                    <label class="block font-semibold mb-2"
+                        >Pilih Skill List 1:</label
+                    >
+                    <div class="relative">
+                        <input
+                            id="skillSearch1"
+                            type="text"
+                            placeholder="Ketik untuk mencari Skill..."
+                            autocomplete="off"
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            oninput="filterSkillOptions(1)"
+                        />
+                        <div
+                            id="dropdown1"
+                            class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
+                        ></div>
+                    </div>
+                    <div
+                        id="selectedSkills1"
+                        class="flex flex-wrap gap-2 mt-2"
+                    ></div>
+                </div>
+                <!-- Skill List 2 -->
+                <div class="mb-6">
+                    <label class="block font-semibold mb-2"
+                        >Pilih Skill List 2:</label
+                    >
+                    <div class="relative">
+                        <input
+                            id="skillSearch2"
+                            type="text"
+                            placeholder="Ketik untuk mencari Skill..."
+                            autocomplete="off"
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            oninput="filterSkillOptions(2)"
+                        />
+                        <div
+                            id="dropdown2"
+                            class="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto hidden"
+                        ></div>
+                    </div>
+                    <div
+                        id="selectedSkills2"
+                        class="flex flex-wrap gap-2 mt-2"
+                    ></div>
+                </div>
+                <button
+                    id="calculateBtn"
+                    type="submit"
+                    class="w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed transition"
+                    disabled
+                >
+                    Hitung Similarity
+                </button>
+            </form>
+            <h3 class="mt-8 text-lg font-semibold text-gray-700">
+                Hasil Similarity:
+                <span id="result" class="font-bold text-blue-600"></span>
+            </h3>
+        </div>
+        <!-- Tambahkan setelah h3 result -->
+        <div
+            id="hierarchyModal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+        >
+            <div class="bg-white rounded-lg p-4 sm:p-6 max-w-sm w-full mx-2">
+                <!-- Ubah padding & mx-2 -->
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-semibold">Hirarki Skill</h4>
+                    <button
+                        onclick="closeHierarchyModal()"
+                        class="text-gray-500 hover:text-gray-700"
+                    >
+                        ×
+                    </button>
+                </div>
+                <div id="hierarchyContent" class="space-y-2"></div>
+            </div>
+        </div>
+        <script>
+            let skills = [];
+            let selected1 = [];
+            let selected2 = [];
+
+            async function loadSkills() {
+                const res = await fetch("/api/skills");
+                const data = await res.json();
+                skills = data.skills;
+                renderSkillOptions(1);
+                renderSkillOptions(2);
+            }
+            function renderSkillOptions(listNum) {
+                const dropdown = document.getElementById("dropdown" + listNum);
+                dropdown.innerHTML = "";
+                const searchVal = document
+                    .getElementById("skillSearch" + listNum)
+                    .value.toLowerCase();
+                let filtered = skills.filter((s) =>
+                    s.toLowerCase().includes(searchVal)
+                );
+                // Hide already selected
+                filtered = filtered.filter(
+                    (s) => !(listNum === 1 ? selected1 : selected2).includes(s)
+                );
+                if (filtered.length === 0) {
+                    dropdown.innerHTML =
+                        '<div class="px-4 py-2 text-gray-400">Tidak ada skill</div>';
+                    return;
+                }
+                filtered.forEach((skill) => {
+                    const opt = document.createElement("div");
+                    opt.className =
+                        "px-4 py-2 hover:bg-blue-100 cursor-pointer";
+                    opt.textContent = skill;
+                    opt.onclick = () => {
+                        if (listNum === 1) selected1.push(skill);
+                        else selected2.push(skill);
+                        renderSelectedSkills(listNum);
+                        renderSkillOptions(listNum);
+                        document
+                            .getElementById("dropdown" + listNum)
+                            .classList.add("hidden");
+                        document.getElementById("skillSearch" + listNum).value =
+                            "";
+                        updateCalculateButton();
+                    };
+                    dropdown.appendChild(opt);
+                });
+            }
+            function updateCalculateButton() {
+                const btn = document.getElementById("calculateBtn");
+                if (selected1.length > 0 && selected2.length > 0) {
+                    btn.disabled = false;
+                    btn.className =
+                        "w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition cursor-pointer";
+                } else {
+                    btn.disabled = true;
+                    btn.className =
+                        "w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed transition";
+                }
+            }
+            function renderSelectedSkills(listNum) {
+                const container = document.getElementById(
+                    "selectedSkills" + listNum
+                );
+                container.innerHTML = "";
+                (listNum === 1 ? selected1 : selected2).forEach((skill) => {
+                    const badge = document.createElement("span");
+                    badge.className =
+                        "bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-2 text-sm";
+
+                    const skillText = document.createElement("span");
+                    skillText.textContent = skill;
+
+                    // Info button dengan styling yang lebih terlihat
+                    const infoBtn = document.createElement("button");
+                    infoBtn.type = "button"; // <-- tambahkan ini!
+                    infoBtn.innerHTML = "ℹ️";
+                    infoBtn.className =
+                        "text-blue-600 hover:text-blue-800 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs border border-blue-300 hover:border-blue-500";
+                    infoBtn.title = "Lihat hirarki skill";
+                    infoBtn.onclick = (e) => {
+                        e.preventDefault(); // <-- tambahkan ini!
+                        e.stopPropagation(); // <-- tambahkan ini!
+                        showHierarchy(skill);
+                    };
+
+                    // Remove button
+                    const removeBtn = document.createElement("button");
+                    removeBtn.type = "button";
+                    removeBtn.innerHTML = "×";
+                    removeBtn.className =
+                        "text-red-500 hover:text-red-700 bg-white rounded-full w-5 h-5 flex items-center justify-center text-xs border border-red-300 hover:border-red-500 font-bold";
+                    removeBtn.title = "Hapus skill";
+                    removeBtn.onclick = () => {
+                        if (listNum === 1) {
+                            selected1 = selected1.filter((s) => s !== skill);
+                            renderSelectedSkills(1);
+                            renderSkillOptions(1);
+                        } else {
+                            selected2 = selected2.filter((s) => s !== skill);
+                            renderSelectedSkills(2);
+                            renderSkillOptions(2);
+                        }
+                        updateCalculateButton();
+                    };
+
+                    badge.appendChild(skillText);
+                    badge.appendChild(infoBtn);
+                    badge.appendChild(removeBtn);
+                    container.appendChild(badge);
+                });
+                updateCalculateButton();
+            }
+            function filterSkillOptions(listNum) {
+                document
+                    .getElementById("dropdown" + listNum)
+                    .classList.remove("hidden");
+                renderSkillOptions(listNum);
+            }
+            // Hide dropdown if click outside
+            document.addEventListener("click", (e) => {
+                [1, 2].forEach((num) => {
+                    if (
+                        !document
+                            .getElementById("dropdown" + num)
+                            .contains(e.target) &&
+                        e.target !==
+                            document.getElementById("skillSearch" + num)
+                    ) {
+                        document
+                            .getElementById("dropdown" + num)
+                            .classList.add("hidden");
+                    }
+                });
+            });
+            document
+                .getElementById("skillSearch1")
+                .addEventListener("focus", () => {
+                    document
+                        .getElementById("dropdown1")
+                        .classList.remove("hidden");
+                    renderSkillOptions(1);
+                });
+            document
+                .getElementById("skillSearch2")
+                .addEventListener("focus", () => {
+                    document
+                        .getElementById("dropdown2")
+                        .classList.remove("hidden");
+                    renderSkillOptions(2);
+                });
+            loadSkills();
+
+            document.getElementById("similarity-form").onsubmit =
+                async function (e) {
+                    e.preventDefault();
+
+                    // Double check validation
+                    if (selected1.length === 0 || selected2.length === 0) {
+                        alert(
+                            "Pilih minimal satu skill untuk masing-masing list!"
+                        );
+                        return;
+                    }
+
+                    const res = await fetch("/api/calculate_similarity", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            skills_list_1: selected1,
+                            skills_list_2: selected2,
+                        }),
+                    });
+                    const data = await res.json();
+                    document.getElementById("result").innerText =
+                        data.similarity_score ?? data.error;
+                };
+            async function showHierarchy(skillName) {
+                try {
+                    const res = await fetch(
+                        `/api/skill_hierarchy/${encodeURIComponent(skillName)}`
+                    );
+                    const data = await res.json();
+
+                    const content = document.getElementById("hierarchyContent");
+                    content.innerHTML = "";
+
+                    // Reverse agar urutan dari paling atas ke bawah
+                    const reversed = [...data.hierarchy].reverse();
+                    reversed.forEach((level, index) => {
+                        const item = document.createElement("div");
+                        // Paling atas (Skills) pakai panah, paling bawah (skill terpilih) pakai 🎯
+                        if (index === reversed.length - 1) {
+                            item.className =
+                                "p-2 rounded bg-blue-100 font-semibold";
+                            item.textContent = `🎯 ${level}`;
+                        } else {
+                            item.className = "p-2 rounded bg-gray-100";
+                            item.textContent = `↑ ${level}`;
+                        }
+                        content.appendChild(item);
+                    });
+
+                    document
+                        .getElementById("hierarchyModal")
+                        .classList.remove("hidden");
+                } catch (error) {
+                    alert("Error loading hierarchy: " + error.message);
+                }
+            }
+
+            function closeHierarchyModal() {
+                document
+                    .getElementById("hierarchyModal")
+                    .classList.add("hidden");
+            }
+        </script>
+    </body>
+</html>
